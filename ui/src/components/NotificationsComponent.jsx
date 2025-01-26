@@ -4,7 +4,6 @@ function NotificationsComponent({ notifications, setNotifications }) {
   const POLLING_FREQUENCY = 1000;
   let monitorStaleNotificationsTaskId;
 
-
   useEffect(() => {
     monitorStaleNotifications();
 
@@ -17,7 +16,9 @@ function NotificationsComponent({ notifications, setNotifications }) {
     const currentTime = Date.now();
     for (const [removeTime, _] of notifications) {
       if (currentTime >= removeTime) {
-        const newNotifications = new Map([...notifications].filter(entry => entry[0] !== removeTime));
+        const newNotifications = new Map(
+          [...notifications].filter((entry) => entry[0] !== removeTime),
+        );
         setNotifications(newNotifications);
       }
     }
@@ -26,14 +27,22 @@ function NotificationsComponent({ notifications, setNotifications }) {
   function monitorStaleNotifications() {
     monitorStaleNotificationsTaskId = setTimeout(() => {
       cleanStaleNotificationsIfNecessary();
-      monitorStaleNotificationsTaskId = setTimeout(monitorStaleNotifications, POLLING_FREQUENCY);
+      monitorStaleNotificationsTaskId = setTimeout(
+        monitorStaleNotifications,
+        POLLING_FREQUENCY,
+      );
     }, POLLING_FREQUENCY);
   }
 
   return (
     <div id="notifications-container">
-      {[...notifications.values()].map(notification => (
-        <div className={`notification notification-${notification.type}`} key={notification.id}>{notification.icon} {notification.message}</div>
+      {[...notifications.values()].map((notification) => (
+        <div
+          className={`notification notification-${notification.type}`}
+          key={notification.id}
+        >
+          {notification.icon} {notification.message}
+        </div>
       ))}
     </div>
   );

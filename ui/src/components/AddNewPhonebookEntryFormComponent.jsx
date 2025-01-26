@@ -2,8 +2,17 @@ import PhonebookEntryObject from "../objects/PhonebookEntryObject.js";
 import NotificationObject from "../objects/NotificationObject.js";
 import { config } from "../config.json";
 
-function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName, setNewName, notifications, setNotifications, newPhoneNumber, setNewPhoneNumber, phonebookClient }) {
-
+function AddNewPhonebookEntryFormComponent({
+  phonebook,
+  updatePhonebook,
+  newName,
+  setNewName,
+  notifications,
+  setNotifications,
+  newPhoneNumber,
+  setNewPhoneNumber,
+  phonebookClient,
+}) {
   async function handleSubmit(event) {
     event.preventDefault();
     const form = event.target;
@@ -12,45 +21,53 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
       form.newPhoneNumber.value,
     );
 
-    const alreadyExistingIdx = phonebook.findIndex(e => e.name === entry.name);
+    const alreadyExistingIdx = phonebook.findIndex(
+      (e) => e.name === entry.name,
+    );
     const isUpdate = alreadyExistingIdx !== -1;
     console.log(`isUpdate: ${isUpdate}`);
     if (isUpdate) {
       const alreadyExistingEntry = phonebook[alreadyExistingIdx];
       const isNewPhoneNumberConfirmed = confirm(
-        `This name already exists in phonebook. Do you want to update the phone number?`
+        `This name already exists in phonebook. Do you want to update the phone number?`,
       );
       if (isNewPhoneNumberConfirmed) {
         const updatedEntry = {};
         try {
           updatedEntry.entry = await phonebookClient.update(
             alreadyExistingEntry.id,
-            new PhonebookEntryObject(entry.name, entry.phoneNumber))
-        }
-        catch (error) {
+            new PhonebookEntryObject(entry.name, entry.phoneNumber),
+          );
+        } catch (error) {
           console.error(error);
           if (error.status === 404) {
             const alreadyDeletedNotification = NotificationObject.newWarning(
-              `${entry.name}'s phone number has already been deleted!`
+              `${entry.name}'s phone number has already been deleted!`,
             );
             addNotification(alreadyDeletedNotification);
 
             const fetchedPersons = await phonebookClient.getAll();
-            const phonebook = fetchedPersons.map(person => PhonebookEntryObject.fromJson(person));
+            const phonebook = fetchedPersons.map((person) =>
+              PhonebookEntryObject.fromJson(person),
+            );
             updatePhonebook(phonebook);
-          }
-          else {
-            const errorNotification = NotificationObject.newWarning(error.response.data.message);
+          } else {
+            const errorNotification = NotificationObject.newWarning(
+              error.response.data.message,
+            );
             addNotification(errorNotification);
           }
           return;
         }
 
-        const newPhonebook = phonebook.map(e => e.id === updatedEntry.entry.id ? updatedEntry.entry : e);
+        const newPhonebook = phonebook.map((e) =>
+          e.id === updatedEntry.entry.id ? updatedEntry.entry : e,
+        );
         updatePhonebook(newPhonebook);
-        const phoneUpdatedNotification = NotificationObject.newInfo(`${entry.name}'s phone number has been updated!`);
+        const phoneUpdatedNotification = NotificationObject.newInfo(
+          `${entry.name}'s phone number has been updated!`,
+        );
         addNotification(phoneUpdatedNotification);
-
       }
       return;
     }
@@ -58,15 +75,13 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
     // save
     try {
       await phonebookClient.save(entry);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
       const data = error.response.data;
       const message = {};
       if (data.errorType === "ValidationError") {
         message.message = extractValidationErrorMessage(data.message);
-      }
-      else {
+      } else {
         message.message = data.message;
       }
       const errorNotification = NotificationObject.newWarning(message.message);
@@ -78,7 +93,9 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
     updatePhonebook(newPhonebook);
     setNewName("");
     setNewPhoneNumber("");
-    const personAddedNotification = NotificationObject.newInfo(`Added "${entry.name}" to the phonebook!`);
+    const personAddedNotification = NotificationObject.newInfo(
+      `Added "${entry.name}" to the phonebook!`,
+    );
     addNotification(personAddedNotification);
   }
 
@@ -88,7 +105,10 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
 
   function addNotification(notification) {
     const removeAt = Date.now() + config.notification.displayTime;
-    const newNotifications = new Map([...notifications, [removeAt, notification]]);
+    const newNotifications = new Map([
+      ...notifications,
+      [removeAt, notification],
+    ]);
     setNotifications(newNotifications);
   }
 
@@ -103,9 +123,7 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-    >
+    <form onSubmit={handleSubmit}>
       <div
         style={{
           alignItems: "flex-start",
@@ -131,11 +149,7 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
           value={newPhoneNumber}
           onChange={handleOnPhoneNumberChange}
         />
-        <button
-          type="submit"
-        >
-          Add entry
-        </button>
+        <button type="submit">Add entry</button>
       </div>
     </form>
   );

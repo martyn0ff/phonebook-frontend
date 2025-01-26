@@ -3,20 +3,19 @@ import AddNewPhonebookEntryFormComponent from "./AddNewPhonebookEntryFormCompone
 import FilterPhonebookComponent from "./FilterPhonebookComponent.jsx";
 
 function PhonebookControlComponent({
-    // This is terrible
-    phonebook,
-    updatePhonebook,
-    displayedPhonebook,
-    setDisplayedPhonebook,
-    newName,
-    setNewName,
-    notifications,
-    setNotifications,
-    newPhoneNumber,
-    setNewPhoneNumber,
-    phonebookClient
-  }) {
-
+  // This is terrible
+  phonebook,
+  updatePhonebook,
+  displayedPhonebook,
+  setDisplayedPhonebook,
+  newName,
+  setNewName,
+  notifications,
+  setNotifications,
+  newPhoneNumber,
+  setNewPhoneNumber,
+  phonebookClient,
+}) {
   return (
     <div id="phonebook-control">
       <HeaderComponent value="Phonebook" />

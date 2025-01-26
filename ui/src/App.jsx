@@ -13,8 +13,8 @@ function App() {
   const [displayedPhonebook, setDisplayedPhonebook] = useState({
     items: [],
     properties: {
-      isFiltered: false
-    }
+      isFiltered: false,
+    },
   });
   const [newName, setNewName] = useState("");
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
@@ -26,12 +26,12 @@ function App() {
   }
 
   function fetchPersons() {
-    phonebookClient
-      .getAll()
-      .then(persons => {
-        const phonebook = persons.map(person => PhonebookEntryObject.fromJson(person));
-        updatePhonebook(phonebook);
-      })
+    phonebookClient.getAll().then((persons) => {
+      const phonebook = persons.map((person) =>
+        PhonebookEntryObject.fromJson(person),
+      );
+      updatePhonebook(phonebook);
+    });
   }
 
   useEffect(fetchPersons, []);
@@ -65,7 +65,5 @@ function App() {
     </div>
   );
 }
-
-
 
 export default App;

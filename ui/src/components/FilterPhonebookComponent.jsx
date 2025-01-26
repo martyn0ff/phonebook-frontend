@@ -1,19 +1,24 @@
 import { useState } from "react";
 
-function FilterPhonebookComponent({ displayedPhonebook, setDisplayedPhonebook }) {
-
+function FilterPhonebookComponent({
+  displayedPhonebook,
+  setDisplayedPhonebook,
+}) {
   const [newFilterValue, setNewFilterValue] = useState("");
 
   function handleOnFilterInput(event) {
     const filterValue = event.target.value;
 
     if (filterValue === "") {
-      const clearedDisplayedPhonebook = clearHighlightedRanges(displayedPhonebook);
+      const clearedDisplayedPhonebook =
+        clearHighlightedRanges(displayedPhonebook);
       clearedDisplayedPhonebook.properties.isFiltered = false;
       setDisplayedPhonebook(clearedDisplayedPhonebook);
-    }
-    else {
-      const highlightedDisplayedPhonebook = updateHighlightedRanges(displayedPhonebook, filterValue);
+    } else {
+      const highlightedDisplayedPhonebook = updateHighlightedRanges(
+        displayedPhonebook,
+        filterValue,
+      );
       highlightedDisplayedPhonebook.properties.isFiltered = true;
       setDisplayedPhonebook(highlightedDisplayedPhonebook);
     }
@@ -45,26 +50,28 @@ function FilterPhonebookComponent({ displayedPhonebook, setDisplayedPhonebook })
 function clearHighlightedRanges(displayedPhonebook) {
   return {
     ...displayedPhonebook,
-    items: displayedPhonebook.items.map(entry => ({
+    items: displayedPhonebook.items.map((entry) => ({
       ...entry,
       properties: {
-        highlightedRanges: []
-      }
-    }))
+        highlightedRanges: [],
+      },
+    })),
   };
 }
 
 function updateHighlightedRanges(displayedPhonebook, filterValue) {
   return {
     ...displayedPhonebook,
-    items: displayedPhonebook.items.map(entry => ({
+    items: displayedPhonebook.items.map((entry) => ({
       ...entry,
       properties: {
-        highlightedRanges: allIndexOf(normalize(entry.value.name), normalize(filterValue))
-      }
-    }))
+        highlightedRanges: allIndexOf(
+          normalize(entry.value.name),
+          normalize(filterValue),
+        ),
+      },
+    })),
   };
-
 }
 
 function normalize(str) {
@@ -83,7 +90,7 @@ function allIndexOf(str, substr) {
     position = currentIndex + 1;
   }
 
-  return indices.map(idx => ({
+  return indices.map((idx) => ({
     start: idx,
     end: idx + substr.length - 1,
   }));

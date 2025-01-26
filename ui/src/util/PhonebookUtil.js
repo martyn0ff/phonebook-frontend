@@ -1,23 +1,21 @@
-PhonebookUtil.phonebookToDisplayed = function(phonebook) {
+PhonebookUtil.phonebookToDisplayed = function (phonebook) {
   return {
     properties: {
-      isFiltered: false
+      isFiltered: false,
     },
-    items: PhonebookUtil.phonebookToDisplayedItems(phonebook)
+    items: PhonebookUtil.phonebookToDisplayedItems(phonebook),
   };
-}
+};
 
-PhonebookUtil.phonebookToDisplayedItems = function(phonebook) {
-  return phonebook.map(entry => ({
+PhonebookUtil.phonebookToDisplayedItems = function (phonebook) {
+  return phonebook.map((entry) => ({
     value: entry,
     properties: {
-      highlightedRanges: []
-    }
-  }))
-}
+      highlightedRanges: [],
+    },
+  }));
+};
 
-function PhonebookUtil() {
-
-}
+function PhonebookUtil() {}
 
 export default PhonebookUtil;
