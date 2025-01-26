@@ -27,12 +27,15 @@ function PhonebookEntryComponent({ entryObject, phonebook, updatePhonebook, phon
     return jsxBuilder;
   }
 
-  function handleOnDeleteClick() {
-    phonebookClient.delete(entryObject.value.id)
-      .then(() => {
-        const newPhonebook = phonebook.filter(e => e.id !== entryObject.value.id);
-        updatePhonebook(newPhonebook);
-      });
+  async function handleOnDeleteClick() {
+    try {
+      await phonebookClient.delete(entryObject.value.id);
+    }
+    catch (error) {
+
+    }
+    const newPhonebook = phonebook.filter(e => e.id !== entryObject.value.id);
+    updatePhonebook(newPhonebook);
   }
 
   return (

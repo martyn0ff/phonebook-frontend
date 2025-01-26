@@ -3,10 +3,10 @@ import PhonebookComponent from "./components/PhonebookComponent.jsx";
 import PhonebookControlComponent from "./components/PhonebookControlComponent.jsx";
 import PhonebookEntryObject from "./objects/PhonebookEntryObject.js";
 import PhonebookUtil from "./util/PhonebookUtil.js";
-import PhonebookClient from "./client/PhonebookClient.js";
+import PhonebookWebClient from "./client/PhonebookWebClient.js";
 import NotificationsComponent from "./components/NotificationsComponent.jsx";
 
-const phonebookClient = new PhonebookClient();
+const phonebookClient = new PhonebookWebClient();
 
 function App() {
   const [phonebook, setPhonebook] = useState([]);

@@ -4,7 +4,7 @@ import { config } from "../config.json";
 
 function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName, setNewName, notifications, setNotifications, newPhoneNumber, setNewPhoneNumber, phonebookClient }) {
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const form = event.target;
     const entry = new PhonebookEntryObject(
@@ -13,47 +13,77 @@ function AddNewPhonebookEntryFormComponent({ phonebook, updatePhonebook, newName
     );
 
     const alreadyExistingIdx = phonebook.findIndex(e => e.name === entry.name);
-    if (alreadyExistingIdx !== -1) {
+    const isUpdate = alreadyExistingIdx !== -1;
+    console.log(`isUpdate: ${isUpdate}`);
+    if (isUpdate) {
       const alreadyExistingEntry = phonebook[alreadyExistingIdx];
-      const isNewPhoneNumberConfirmed = confirm(`This name already exists in phonebook. Do you want to update the phone number?`);
+      const isNewPhoneNumberConfirmed = confirm(
+        `This name already exists in phonebook. Do you want to update the phone number?`
+      );
       if (isNewPhoneNumberConfirmed) {
-        phonebookClient
-          .update(alreadyExistingEntry.id, new PhonebookEntryObject(entry.name, entry.phoneNumber))
-          .then(updatedEntry => {
-            const newPhonebook = phonebook.map(e => e.id === updatedEntry.id ? updatedEntry : e);
-            updatePhonebook(newPhonebook);
-            const phoneUpdatedNotification = NotificationObject.newInfo(`${entry.name}'s phone number has been updated!`);
-            addNotification(phoneUpdatedNotification);
-          })
-          .catch(error => {
-            if (error.status === 404) {
-              const alreadyDeletedNotification = NotificationObject.newWarning(`${entry.name}'s phone number has already been deleted!`);
-              addNotification(alreadyDeletedNotification);
-              phonebookClient
-                .getAll()
-                .then(persons => {
-                  const phonebook = persons.map(person => PhonebookEntryObject.fromJson(person));
-                  updatePhonebook(phonebook);
-                })
-            }
-            else {
-              throw error;
-            }
-          })
+        const updatedEntry = {};
+        try {
+          updatedEntry.entry = await phonebookClient.update(
+            alreadyExistingEntry.id,
+            new PhonebookEntryObject(entry.name, entry.phoneNumber))
+        }
+        catch (error) {
+          console.error(error);
+          if (error.status === 404) {
+            const alreadyDeletedNotification = NotificationObject.newWarning(
+              `${entry.name}'s phone number has already been deleted!`
+            );
+            addNotification(alreadyDeletedNotification);
+
+            const fetchedPersons = await phonebookClient.getAll();
+            const phonebook = fetchedPersons.map(person => PhonebookEntryObject.fromJson(person));
+            updatePhonebook(phonebook);
+          }
+          else {
+            const errorNotification = NotificationObject.newWarning(error.response.data.message);
+            addNotification(errorNotification);
+          }
+          return;
+        }
+
+        const newPhonebook = phonebook.map(e => e.id === updatedEntry.entry.id ? updatedEntry.entry : e);
+        updatePhonebook(newPhonebook);
+        const phoneUpdatedNotification = NotificationObject.newInfo(`${entry.name}'s phone number has been updated!`);
+        addNotification(phoneUpdatedNotification);
+
       }
+      return;
     }
-    else {
-      phonebookClient
-        .save(entry)
-        .then(() => {
-          const newPhonebook = phonebook.concat(entry);
-          updatePhonebook(newPhonebook);
-          setNewName("");
-          setNewPhoneNumber("");
-          const personAddedNotification = NotificationObject.newInfo(`Added "${entry.name}" to the phonebook!`);
-          addNotification(personAddedNotification);
-        })
+
+    // save
+    try {
+      await phonebookClient.save(entry);
     }
+    catch (error) {
+      console.error(error);
+      const data = error.response.data;
+      const message = {};
+      if (data.errorType === "ValidationError") {
+        message.message = extractValidationErrorMessage(data.message);
+      }
+      else {
+        message.message = data.message;
+      }
+      const errorNotification = NotificationObject.newWarning(message.message);
+      addNotification(errorNotification);
+      return;
+    }
+
+    const newPhonebook = phonebook.concat(entry);
+    updatePhonebook(newPhonebook);
+    setNewName("");
+    setNewPhoneNumber("");
+    const personAddedNotification = NotificationObject.newInfo(`Added "${entry.name}" to the phonebook!`);
+    addNotification(personAddedNotification);
+  }
+
+  function extractValidationErrorMessage(message) {
+    return message.match(/.* validation failed: (.*)/s)[1];
   }
 
   function addNotification(notification) {
